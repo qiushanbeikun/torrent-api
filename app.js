@@ -138,6 +138,19 @@ const PornAPI = (req, res) => {
   })
 };
 
+const testAPI = (req, res) => {
+  const targetURL = 'https://api.bilibili.com/x/v2/reply?pn=1&type=1&oid=926122893'; // B站的api获取所有的评论 返回一个json file
+  request(targetURL, function (err, response, body) {
+    let allReplies = JSON.parse(body).data.replies; // 获取所有的评论作为一个array
+    const numberOfReplies = allReplies.length; // 所有评论的总数
+    const randomFloor = Math.floor(Math.random() * numberOfReplies); // 以评论数为上界产生一个随机数
+    const luckyUser = allReplies[randomFloor-1].member.uname; // 谁是这个幸运的人
+    const userMid = allReplies[randomFloor-1].member.mid; // 他的uid
+    const message = allReplies[randomFloor-1].content.message; // 他的评论内容
+    const result = `${luckyUser}_${userMid}_message:${message}`; // 以string的方式送回
+    res.send(result);
+  })
+};
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -154,6 +167,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/anime/:content', AnimeAPI);
 app.use('/porn/:content', PornAPI);
+app.use('/test', testAPI);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
